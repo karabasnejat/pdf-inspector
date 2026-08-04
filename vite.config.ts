@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  base: '/pdf-inspector/',
+  base: '/',
   plugins: [react()],
   optimizeDeps: {
     exclude: ['@firecrawl/pdf-inspector-wasm'],
