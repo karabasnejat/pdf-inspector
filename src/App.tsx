@@ -105,7 +105,21 @@ export default function App() {
   useEffect(() => {
     if (!result?.markdown) return;
 
-    extractedContentRef.current?.scrollIntoView({
+    if (window.matchMedia('(max-width: 768px)').matches) {
+      return;
+    }
+
+    const target = extractedContentRef.current;
+    if (!target) return;
+
+    const rect = target.getBoundingClientRect();
+    const alreadyVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+
+    if (alreadyVisible) {
+      return;
+    }
+
+    target.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
     });
