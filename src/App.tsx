@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { marked } from 'marked';
 import { usePdfInspector } from './usePdfInspector';
 import type { PdfProcessResult } from '@firecrawl/pdf-inspector-wasm';
@@ -16,6 +16,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'markdown' | 'raw'>('markdown');
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const extractedContentRef = useRef<HTMLDivElement>(null);
 
   const { ready, processPdf } = usePdfInspector();
 
@@ -97,6 +98,15 @@ export default function App() {
     link.click();
     URL.revokeObjectURL(url);
   }, [activeTab, fileName, result]);
+
+  useEffect(() => {
+    if (!result?.markdown) return;
+
+    extractedContentRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }, [result]);
 
   return (
     <div className="app">
