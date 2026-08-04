@@ -546,6 +546,79 @@ body {
   animation: fadeIn 0.6s ease forwards;
 }
 
+.markdown-content div {
+  white-space: normal;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  letter-spacing: normal;
+  color: #222222;
+}
+
+.markdown-content div h1,
+.markdown-content div h2,
+.markdown-content div h3,
+.markdown-content div h4,
+.markdown-content div h5,
+.markdown-content div h6 {
+  margin-top: 1.2em;
+  margin-bottom: 0.4em;
+  font-weight: 500;
+  color: #111111;
+}
+
+.markdown-content div p {
+  margin-bottom: 0.75em;
+}
+
+.markdown-content div ul,
+.markdown-content div ol {
+  margin-left: 1.5em;
+  margin-bottom: 0.75em;
+}
+
+.markdown-content div table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 1em;
+  font-size: 13px;
+}
+
+.markdown-content div th,
+.markdown-content div td {
+  border: 1px solid #dbdcdf;
+  padding: 6px 12px;
+  text-align: left;
+}
+
+.markdown-content div th {
+  background: #f0f1f5;
+  font-weight: 500;
+}
+
+.markdown-content div code {
+  font-family: 'IBM Plex Mono', monospace;
+  background: #eef0f5;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.markdown-content div pre {
+  background: #eef0f5;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin-bottom: 0.75em;
+}
+
+.markdown-content div blockquote {
+  border-left: 3px solid #dbdcdf;
+  padding-left: 12px;
+  color: #6b6f87;
+  margin-bottom: 0.75em;
+}
+
 .markdown-content::-webkit-scrollbar {
   width: 4px;
 }
