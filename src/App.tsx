@@ -105,7 +105,9 @@ export default function App() {
   useEffect(() => {
     if (!result?.markdown) return;
 
-    if (window.matchMedia('(max-width: 768px)').matches) {
+    const isMobileUi = window.matchMedia('(max-width: 1024px), (pointer: coarse)').matches;
+
+    if (isMobileUi) {
       return;
     }
 
