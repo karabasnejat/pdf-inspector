@@ -82,10 +82,7 @@ export default function App() {
           from PyPI and crates.io.
         </p>
         <div className="header-actions">
-          <a href="https://github.com/firecrawl/pdf-inspector" target="_blank" rel="noopener noreferrer" className="btn-primary">
-            View on GitHub <span className="arrow">↗</span>
-          </a>
-          <a href="#upload" className="btn-ghost" onClick={(e) => { e.preventDefault(); fileInputRef.current?.click(); }}>
+          <a href="#upload" className="btn-primary" onClick={(e) => { e.preventDefault(); fileInputRef.current?.click(); }}>
             Try it locally <span className="arrow">↓</span>
           </a>
         </div>
@@ -155,60 +152,62 @@ export default function App() {
           <span className="benchmark-tag">200 PDFs · OpenDataLoader benchmark</span>
           <span className="benchmark-meta">Apple M4 Pro · median of 3 runs</span>
         </div>
-        <table className="benchmark-table">
-          <thead>
-            <tr>
-              <th>Engine</th>
-              <th>Overall</th>
-              <th>Reading Order</th>
-              <th>Tables</th>
-              <th>Headings</th>
-              <th>Complete Run</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="benchmark-highlight">
-              <td><span className="benchmark-dot" />pdf-inspector</td>
-              <td>0.875</td>
-              <td>0.915</td>
-              <td>0.814</td>
-              <td>0.788</td>
-              <td>2.8s</td>
-            </tr>
-            <tr>
-              <td>LiteParse</td>
-              <td>0.870</td>
-              <td>0.908</td>
-              <td>0.693</td>
-              <td>0.811</td>
-              <td>13.9s</td>
-            </tr>
-            <tr>
-              <td>OpenDataLoader</td>
-              <td>0.843</td>
-              <td>0.912</td>
-              <td>0.489</td>
-              <td>0.760</td>
-              <td>9.8s</td>
-            </tr>
-            <tr>
-              <td>PyMuPDF4LLM</td>
-              <td>0.735</td>
-              <td>0.886</td>
-              <td>0.401</td>
-              <td>0.424</td>
-              <td>15.5s</td>
-            </tr>
-            <tr>
-              <td>MarkItDown</td>
-              <td>0.583</td>
-              <td>0.879</td>
-              <td>0.000</td>
-              <td>0.000</td>
-              <td>6.7s</td>
-            </tr>
-          </tbody>
-        </table>
+        <div className="benchmark-table-wrap">
+          <table className="benchmark-table">
+            <thead>
+              <tr>
+                <th>Engine</th>
+                <th>Overall</th>
+                <th>Reading Order</th>
+                <th>Tables</th>
+                <th>Headings</th>
+                <th>Complete Run</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="benchmark-highlight">
+                <td><span className="benchmark-dot" />pdf-inspector</td>
+                <td>0.875</td>
+                <td>0.915</td>
+                <td>0.814</td>
+                <td>0.788</td>
+                <td>2.8s</td>
+              </tr>
+              <tr>
+                <td>LiteParse</td>
+                <td>0.870</td>
+                <td>0.908</td>
+                <td>0.693</td>
+                <td>0.811</td>
+                <td>13.9s</td>
+              </tr>
+              <tr>
+                <td>OpenDataLoader</td>
+                <td>0.843</td>
+                <td>0.912</td>
+                <td>0.489</td>
+                <td>0.760</td>
+                <td>9.8s</td>
+              </tr>
+              <tr>
+                <td>PyMuPDF4LLM</td>
+                <td>0.735</td>
+                <td>0.886</td>
+                <td>0.401</td>
+                <td>0.424</td>
+                <td>15.5s</td>
+              </tr>
+              <tr>
+                <td>MarkItDown</td>
+                <td>0.583</td>
+                <td>0.879</td>
+                <td>0.000</td>
+                <td>0.000</td>
+                <td>6.7s</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <p className="benchmark-footer">Refreshed July 16, 2026. Scores use the benchmark's NID, TEDS, and MHS evaluators.</p>
       </div>
 

@@ -12,6 +12,7 @@ body {
   background: #f8f9fc;
   color: #222222;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .app {
@@ -28,6 +29,7 @@ body {
 .header-badges {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 20px;
 }
@@ -91,6 +93,7 @@ body {
 .header-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 16px;
   margin-top: 30px;
 }
@@ -98,6 +101,7 @@ body {
 .btn-primary {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   background: #0428cb;
   color: #ffffff;
@@ -162,6 +166,7 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .terminal-header {
@@ -201,11 +206,13 @@ body {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 13px;
   line-height: 1.8;
+  overflow-x: auto;
 }
 
 .terminal-line {
   display: flex;
   gap: 10px;
+  min-width: max-content;
 }
 
 .terminal-prompt {
@@ -220,6 +227,7 @@ body {
 .terminal-output {
   color: #6b6b83;
   padding-left: 20px;
+  min-width: max-content;
 }
 
 .terminal-output.terminal-md {
@@ -457,6 +465,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   padding: 10px 0;
   border-bottom: 1px solid #dbdcdf;
 }
@@ -477,6 +486,8 @@ body {
   font-size: 13px;
   letter-spacing: 0.077em;
   color: #222222;
+  text-align: right;
+  word-break: break-word;
 }
 
 /* Badges */
@@ -674,9 +685,31 @@ body {
 
 .benchmark-table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
+}
+
+.benchmark-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.benchmark-table-wrap::-webkit-scrollbar,
+.terminal-body::-webkit-scrollbar {
+  height: 6px;
+}
+
+.benchmark-table-wrap::-webkit-scrollbar-track,
+.terminal-body::-webkit-scrollbar-track {
+  background: #f1f2f6;
+}
+
+.benchmark-table-wrap::-webkit-scrollbar-thumb,
+.terminal-body::-webkit-scrollbar-thumb {
+  background: #dbdcdf;
+  border-radius: 999px;
 }
 
 .benchmark-table thead th {
@@ -738,16 +771,108 @@ body {
 }
 
 @media (max-width: 768px) {
+  .app {
+    padding: 48px 1rem;
+  }
+
+  .header {
+    margin-bottom: 40px;
+  }
+
+  .header-badges {
+    gap: 8px;
+  }
+
   .benchmark-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .btn-primary {
+    width: 100%;
+  }
+
+  .upload-zone {
+    padding: 40px 16px;
+  }
+
+  .upload-zone h2 {
+    font-size: 24px;
+  }
+
+  .processing-animation {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .info-value {
+    text-align: left;
+  }
+
+  .terminal-header {
+    padding: 10px 12px;
+  }
+
+  .terminal-body {
+    padding: 16px;
+    font-size: 12px;
+  }
+
+  .terminal-meta-row {
+    gap: 12px;
+  }
+
   .benchmark-table {
     font-size: 12px;
   }
+
   .benchmark-table thead th,
   .benchmark-table tbody td {
     padding: 10px 8px;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    flex: 1 1 140px;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 42px;
+    line-height: 1.1;
+    letter-spacing: -0.7px;
+  }
+
+  .header-desc {
+    font-size: 16px;
+  }
+
+  .badge-open-source,
+  .badge-rust,
+  .benchmark-tag,
+  .benchmark-meta {
+    font-size: 10px;
+  }
+
+  .card,
+  .benchmark-section,
+  .status {
+    padding: 16px;
   }
 }
