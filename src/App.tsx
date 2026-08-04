@@ -12,6 +12,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [activeTab, setActiveTab] = useState<'markdown' | 'raw'>('markdown');
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
@@ -29,6 +30,7 @@ export default function App() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setSuccessMessage(null);
     setFileName(file.name);
 
     try {
@@ -36,6 +38,7 @@ export default function App() {
       const data = new Uint8Array(buffer);
       const res = await processPdf(data);
       setResult(res);
+      setSuccessMessage(`Extraction completed for ${file.name}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'PDF işlenirken bir hata oluştu.');
     } finally {
@@ -107,6 +110,13 @@ export default function App() {
       block: 'start',
     });
   }, [result]);
+
+  useEffect(() => {
+    if (!successMessage) return;
+
+    const timeoutId = window.setTimeout(() => setSuccessMessage(null), 2600);
+    return () => window.clearTimeout(timeoutId);
+  }, [successMessage]);
 
   return (
     <div className="app">
@@ -263,6 +273,13 @@ export default function App() {
       {error && (
         <div className="status error">
           {error}
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="toast-success" role="status" aria-live="polite">
+          <span className="toast-success-dot" />
+          <span>{successMessage}</span>
         </div>
       )}
 
