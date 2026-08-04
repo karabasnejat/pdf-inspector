@@ -452,6 +452,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+  min-width: 0;
   animation: fadeSlideUp 0.5s ease forwards;
 }
 
@@ -470,6 +471,7 @@ body {
   border-radius: 8px;
   padding: 20px;
   border: 1px solid #dbdcdf;
+  min-width: 0;
   animation: fadeSlideUp 0.4s ease backwards;
 }
 
@@ -559,6 +561,7 @@ body {
 /* Markdown output */
 .markdown-output {
   grid-column: 1 / -1;
+  overflow: hidden;
 }
 
 .markdown-content {
@@ -567,7 +570,9 @@ body {
   border-radius: 8px;
   padding: 20px;
   max-height: 600px;
-  overflow-y: auto;
+  max-width: 100%;
+  min-width: 0;
+  overflow: auto;
   white-space: pre-wrap;
   font-family: 'IBM Plex Mono', monospace;
   font-size: 13px;
@@ -579,6 +584,8 @@ body {
 
 .markdown-content div {
   white-space: normal;
+  max-width: 100%;
+  min-width: 0;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   line-height: 1.7;
@@ -609,8 +616,12 @@ body {
 }
 
 .markdown-content div table {
+  display: block;
   border-collapse: collapse;
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
   margin-bottom: 1em;
   font-size: 13px;
 }
@@ -640,7 +651,13 @@ body {
   padding: 12px;
   border-radius: 6px;
   overflow-x: auto;
+  max-width: 100%;
   margin-bottom: 0.75em;
+}
+
+.markdown-content > pre {
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .markdown-content div blockquote {
