@@ -3,6 +3,10 @@ import { marked } from 'marked';
 import { usePdfInspector } from './usePdfInspector';
 import type { PdfProcessResult } from '@firecrawl/pdf-inspector-wasm';
 
+function toRawText(markdown: string) {
+  return markdown.replace(/[#*_`\[\]()>|-]/g, '');
+}
+
 export default function App() {
   const [result, setResult] = useState<PdfProcessResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -10,6 +14,7 @@ export default function App() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [activeTab, setActiveTab] = useState<'markdown' | 'raw'>('markdown');
+  const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { ready, processPdf } = usePdfInspector();
@@ -68,6 +73,30 @@ export default function App() {
       default: return type;
     }
   };
+
+  const handleCopy = useCallback(async () => {
+    if (!result?.markdown) return;
+
+    const content = activeTab === 'markdown' ? result.markdown : toRawText(result.markdown);
+    await navigator.clipboard.writeText(content);
+    setCopyFeedback(activeTab === 'markdown' ? 'Markdown copied' : 'Raw text copied');
+    window.setTimeout(() => setCopyFeedback(null), 1800);
+  }, [activeTab, result]);
+
+  const handleDownload = useCallback(() => {
+    if (!result?.markdown) return;
+
+    const content = activeTab === 'markdown' ? result.markdown : toRawText(result.markdown);
+    const extension = activeTab === 'markdown' ? 'md' : 'txt';
+    const baseName = (fileName ?? 'pdf-output').replace(/\.pdf$/i, '');
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${baseName}-${activeTab}.${extension}`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [activeTab, fileName, result]);
 
   return (
     <div className="app">
@@ -291,24 +320,34 @@ export default function App() {
           {result.markdown && (
             <div className="card markdown-output">
               <h3>Çıkarılan İçerik</h3>
-              <div className="tabs">
-                <button
-                  className={`tab ${activeTab === 'markdown' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('markdown')}
-                >
-                  Markdown
-                </button>
-                <button
-                  className={`tab ${activeTab === 'raw' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('raw')}
-                >
-                  Ham Metin
-                </button>
+              <div className="content-toolbar">
+                <div className="tabs">
+                  <button
+                    className={`tab ${activeTab === 'markdown' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('markdown')}
+                  >
+                    Markdown
+                  </button>
+                  <button
+                    className={`tab ${activeTab === 'raw' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('raw')}
+                  >
+                    Ham Metin
+                  </button>
+                </div>
+                <div className="content-actions">
+                  <button className="action-button" onClick={() => void handleCopy()}>
+                    {copyFeedback ?? (activeTab === 'markdown' ? 'Copy Markdown' : 'Copy Raw')}
+                  </button>
+                  <button className="action-button" onClick={handleDownload}>
+                    {activeTab === 'markdown' ? 'Download .md' : 'Download .txt'}
+                  </button>
+                </div>
               </div>
               <div className="markdown-content">
                 {activeTab === 'markdown'
                   ? <div dangerouslySetInnerHTML={{ __html: marked.parse(result.markdown) as string }} />
-                  : <pre>{result.markdown.replace(/[#*_`\[\]()>|-]/g, '')}</pre>}
+                  : <pre>{toRawText(result.markdown)}</pre>}
               </div>
             </div>
           )}

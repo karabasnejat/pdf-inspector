@@ -654,7 +654,39 @@ body {
 .tabs {
   display: flex;
   gap: 10px;
+}
+
+.content-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.content-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.action-button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #dbdcdf;
+  background: #ffffff;
+  color: #4f5166;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  border-color: #0428cb;
+  color: #0428cb;
 }
 
 .tab {
@@ -916,6 +948,21 @@ body {
 
   .tabs {
     flex-wrap: wrap;
+  }
+
+  .content-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .content-actions {
+    width: 100%;
+  }
+
+  .action-button {
+    flex: 1 1 160px;
+    justify-content: center;
+    text-align: center;
   }
 
   .tab {
