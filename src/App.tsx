@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { marked } from 'marked';
 import { usePdfInspector } from './usePdfInspector';
 import type { PdfProcessResult } from '@firecrawl/pdf-inspector-wasm';
 
@@ -306,8 +307,8 @@ export default function App() {
               </div>
               <div className="markdown-content">
                 {activeTab === 'markdown'
-                  ? result.markdown
-                  : result.markdown.replace(/[#*_`\[\]()>|-]/g, '')}
+                  ? <div dangerouslySetInnerHTML={{ __html: marked.parse(result.markdown) as string }} />
+                  : <pre>{result.markdown.replace(/[#*_`\[\]()>|-]/g, '')}</pre>}
               </div>
             </div>
           )}
