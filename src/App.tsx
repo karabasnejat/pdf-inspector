@@ -17,7 +17,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'markdown' | 'raw'>('markdown');
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const extractedContentRef = useRef<HTMLDivElement>(null);
 
   const { ready, processPdf } = usePdfInspector();
 
@@ -101,31 +100,6 @@ export default function App() {
     link.click();
     URL.revokeObjectURL(url);
   }, [activeTab, fileName, result]);
-
-  useEffect(() => {
-    if (!result?.markdown) return;
-
-    const isMobileUi = window.matchMedia('(max-width: 1024px), (pointer: coarse)').matches;
-
-    if (isMobileUi) {
-      return;
-    }
-
-    const target = extractedContentRef.current;
-    if (!target) return;
-
-    const rect = target.getBoundingClientRect();
-    const alreadyVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
-
-    if (alreadyVisible) {
-      return;
-    }
-
-    target.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
-  }, [result]);
 
   useEffect(() => {
     if (!successMessage) return;
