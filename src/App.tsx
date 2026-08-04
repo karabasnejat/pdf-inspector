@@ -38,7 +38,7 @@ export default function App() {
       const data = new Uint8Array(buffer);
       const res = await processPdf(data);
       setResult(res);
-      setSuccessMessage(`Extraction completed for ${file.name}`);
+      setSuccessMessage(`Extraction completed for ${file.name}. Scroll down to see the result.`);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'PDF işlenirken bir hata oluştu.');
     } finally {
