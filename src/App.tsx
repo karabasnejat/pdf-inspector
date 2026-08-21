@@ -50,6 +50,14 @@ const formatGroups = [
   { label: 'Other', formats: ['.rtf', '.epub', '.csv'] },
 ];
 
+const pdfBenchmarkRows = [
+  { engine: 'pdf-inspector', overall: '0.875', readingOrder: '0.915', tables: '0.814', headings: '0.788', completeRun: '2.8s', highlight: true },
+  { engine: 'LiteParse', overall: '0.870', readingOrder: '0.908', tables: '0.693', headings: '0.811', completeRun: '13.9s' },
+  { engine: 'OpenDataLoader', overall: '0.843', readingOrder: '0.912', tables: '0.489', headings: '0.760', completeRun: '9.8s' },
+  { engine: 'PyMuPDF4LLM', overall: '0.735', readingOrder: '0.886', tables: '0.401', headings: '0.424', completeRun: '15.5s' },
+  { engine: 'MarkItDown', overall: '0.583', readingOrder: '0.879', tables: '0.000', headings: '0.000', completeRun: '6.7s' },
+];
+
 function isSupportedFile(fileName: string) {
   const lowerName = fileName.toLowerCase();
   return supportedExtensions.some((extension) => lowerName.endsWith(extension));
@@ -299,61 +307,99 @@ export default function App() {
         </div>
       </div>
 
-      <div className="benchmark-section">
-        <div className="benchmark-header">
-          <span className="benchmark-tag">
-            Anydoc mixed-document benchmark · {anydocBenchmark.totalFiles} files
-          </span>
-          <span className="benchmark-meta">
-            {anydocBenchmark.runsPerFile} runs per file · refreshed {formatBenchmarkDate(anydocBenchmark.generatedAt)}
-          </span>
+      <div className="benchmark-stack">
+        <div className="benchmark-section">
+          <div className="benchmark-header">
+            <span className="benchmark-tag">PDF Inspector benchmark · 200 PDFs</span>
+            <span className="benchmark-meta">OpenDataLoader benchmark · Apple M4 Pro · median of 3 runs</span>
+          </div>
+          <div className="benchmark-table-wrap">
+            <table className="benchmark-table">
+              <thead>
+                <tr>
+                  <th>Engine</th>
+                  <th>Overall</th>
+                  <th>Reading Order</th>
+                  <th>Tables</th>
+                  <th>Headings</th>
+                  <th>Complete Run</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pdfBenchmarkRows.map((row) => (
+                  <tr className={row.highlight ? 'benchmark-highlight' : ''} key={row.engine}>
+                    <td><span className="benchmark-dot" />{row.engine}</td>
+                    <td>{row.overall}</td>
+                    <td>{row.readingOrder}</td>
+                    <td>{row.tables}</td>
+                    <td>{row.headings}</td>
+                    <td>{row.completeRun}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="benchmark-footer">
+            Refreshed July 16, 2026. Scores use the benchmark's NID, TEDS, and MHS evaluators.
+          </p>
         </div>
-        <div className="benchmark-summary-grid">
-          <div className="benchmark-summary-card">
-            <span className="benchmark-summary-label">Success</span>
-            <span className="benchmark-summary-value">
-              {anydocBenchmark.successfulFiles}/{anydocBenchmark.totalFiles}
+
+        <div className="benchmark-section">
+          <div className="benchmark-header">
+            <span className="benchmark-tag">
+              Anydoc mixed-document benchmark · {anydocBenchmark.totalFiles} files
+            </span>
+            <span className="benchmark-meta">
+              {anydocBenchmark.runsPerFile} runs per file · refreshed {formatBenchmarkDate(anydocBenchmark.generatedAt)}
             </span>
           </div>
-          <div className="benchmark-summary-card">
-            <span className="benchmark-summary-label">Median conversion</span>
-            <span className="benchmark-summary-value">{formatMs(anydocBenchmark.medianMs)}</span>
+          <div className="benchmark-summary-grid">
+            <div className="benchmark-summary-card">
+              <span className="benchmark-summary-label">Success</span>
+              <span className="benchmark-summary-value">
+                {anydocBenchmark.successfulFiles}/{anydocBenchmark.totalFiles}
+              </span>
+            </div>
+            <div className="benchmark-summary-card">
+              <span className="benchmark-summary-label">Median conversion</span>
+              <span className="benchmark-summary-value">{formatMs(anydocBenchmark.medianMs)}</span>
+            </div>
+            <div className="benchmark-summary-card">
+              <span className="benchmark-summary-label">Markdown output</span>
+              <span className="benchmark-summary-value">{anydocBenchmark.totalMarkdownChars.toLocaleString()} chars</span>
+            </div>
           </div>
-          <div className="benchmark-summary-card">
-            <span className="benchmark-summary-label">Markdown output</span>
-            <span className="benchmark-summary-value">{anydocBenchmark.totalMarkdownChars.toLocaleString()} chars</span>
-          </div>
-        </div>
-        <div className="benchmark-table-wrap">
-          <table className="benchmark-table">
-            <thead>
-              <tr>
-                <th>Format</th>
-                <th>Files</th>
-                <th>Success</th>
-                <th>Median</th>
-                <th>Input</th>
-                <th>Markdown</th>
-              </tr>
-            </thead>
-            <tbody>
-              {anydocBenchmark.byFormat.map((row) => (
-                <tr className={row.successRate === 1 ? 'benchmark-highlight' : ''} key={row.format}>
-                  <td><span className="benchmark-dot" />{row.format}</td>
-                  <td>{row.files}</td>
-                  <td>{row.success}/{row.files} · {formatPercent(row.successRate)}</td>
-                  <td>{formatMs(row.medianMs)}</td>
-                  <td>{row.totalBytes.toLocaleString()} B</td>
-                  <td>{row.totalMarkdownChars.toLocaleString()}</td>
+          <div className="benchmark-table-wrap">
+            <table className="benchmark-table">
+              <thead>
+                <tr>
+                  <th>Format</th>
+                  <th>Files</th>
+                  <th>Success</th>
+                  <th>Median</th>
+                  <th>Input</th>
+                  <th>Markdown</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {anydocBenchmark.byFormat.map((row) => (
+                  <tr className={row.successRate === 1 ? 'benchmark-highlight' : ''} key={row.format}>
+                    <td><span className="benchmark-dot" />{row.format}</td>
+                    <td>{row.files}</td>
+                    <td>{row.success}/{row.files} · {formatPercent(row.successRate)}</td>
+                    <td>{formatMs(row.medianMs)}</td>
+                    <td>{row.totalBytes.toLocaleString()} B</td>
+                    <td>{row.totalMarkdownChars.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="benchmark-footer">
+            Corpus: Unstructured example-docs, Apache Tika test documents, and Apache POI signed Office fixtures.
+            Generated locally with the browser WASM package.
+          </p>
         </div>
-        <p className="benchmark-footer">
-          Corpus: Unstructured example-docs, Apache Tika test documents, and Apache POI signed Office fixtures.
-          Generated locally with the browser WASM package.
-        </p>
       </div>
 
       {loading && (

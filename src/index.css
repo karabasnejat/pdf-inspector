@@ -863,12 +863,17 @@ body {
 }
 
 /* Benchmark table */
+.benchmark-stack {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 80px;
+}
+
 .benchmark-section {
   background: #ffffff;
   border: 1px solid #dbdcdf;
   border-radius: 8px;
   padding: 20px;
-  margin-bottom: 80px;
 }
 
 .benchmark-header {
