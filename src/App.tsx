@@ -111,8 +111,7 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { ready, processPdf } = usePdfInspector();
-  const { ready: anydocReady, convertToMarkdown, detectFormat } = useAnydoc();
-  const isReady = ready && anydocReady;
+  const { convertToMarkdown, detectFormat } = useAnydoc();
 
   const handleFile = useCallback(async (file: File) => {
     if (!isSupportedFile(file.name)) {
@@ -269,7 +268,7 @@ export default function App() {
             </span>
           ))}
         </div>
-        {!isReady && <p className="wasm-loading">Loading WASM modules...</p>}
+        {!ready && <p className="wasm-loading">Loading PDF Inspector...</p>}
         <input
           ref={fileInputRef}
           type="file"
@@ -441,7 +440,7 @@ export default function App() {
               </div>
               <div className="info-item">
                 <span className="info-label">Dönüştürücü</span>
-                <span className="info-value">Anydoc WASM</span>
+                <span className="info-value">{result.pdf ? 'PDF Inspector WASM' : 'Anydoc WASM'}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Dosya</span>
