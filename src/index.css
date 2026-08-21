@@ -863,12 +863,17 @@ body {
 }
 
 /* Benchmark table */
+.benchmark-stack {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 80px;
+}
+
 .benchmark-section {
   background: #ffffff;
   border: 1px solid #dbdcdf;
   border-radius: 8px;
   padding: 20px;
-  margin-bottom: 80px;
 }
 
 .benchmark-header {
@@ -876,6 +881,7 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  gap: 16px;
 }
 
 .benchmark-tag {
@@ -890,6 +896,38 @@ body {
   font-size: 11px;
   letter-spacing: 0.091em;
   color: #6b6b83;
+  text-align: right;
+}
+
+.benchmark-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.benchmark-summary-card {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid #dbdcdf;
+  border-radius: 6px;
+  background: #f8f9fc;
+}
+
+.benchmark-summary-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.091em;
+  text-transform: uppercase;
+  color: #6b6b83;
+}
+
+.benchmark-summary-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  line-height: 1.25;
+  color: #222222;
 }
 
 .benchmark-table {
@@ -1003,6 +1041,14 @@ body {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+  }
+
+  .benchmark-meta {
+    text-align: left;
+  }
+
+  .benchmark-summary-grid {
+    grid-template-columns: 1fr;
   }
 
   .header-actions {

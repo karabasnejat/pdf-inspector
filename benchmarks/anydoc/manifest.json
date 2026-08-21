@@ -1,0 +1,119 @@
+{
+  "name": "Anydoc mixed-document benchmark",
+  "description": "A compact corpus for exercising Anydoc on non-PDF document conversion paths.",
+  "runsPerFile": 5,
+  "files": [
+    {
+      "id": "docx-tables",
+      "format": "docx",
+      "source": "Unstructured example-docs",
+      "url": "https://raw.githubusercontent.com/Unstructured-IO/unstructured/main/example-docs/docx-tables.docx",
+      "notes": "Word document with table structure."
+    },
+    {
+      "id": "docx-header-footer",
+      "format": "docx",
+      "source": "Unstructured example-docs",
+      "url": "https://raw.githubusercontent.com/Unstructured-IO/unstructured/main/example-docs/docx-hdrftr.docx",
+      "notes": "Word document with header and footer content."
+    },
+    {
+      "id": "docx-pictures",
+      "format": "docx",
+      "source": "Unstructured example-docs",
+      "url": "https://raw.githubusercontent.com/Unstructured-IO/unstructured/main/example-docs/contains-pictures.docx",
+      "notes": "Word document with embedded images."
+    },
+    {
+      "id": "doc-legacy",
+      "format": "doc",
+      "source": "Apache Tika test documents",
+      "url": "https://svn.apache.org/repos/asf/tika/branches/0.7/tika-parsers/src/test/resources/test-documents/testWORD.doc",
+      "notes": "Legacy binary Word document."
+    },
+    {
+      "id": "pptx-table",
+      "format": "pptx",
+      "source": "Unstructured example-docs",
+      "url": "https://raw.githubusercontent.com/Unstructured-IO/unstructured/main/example-docs/fake-power-point-table.pptx",
+      "notes": "PowerPoint deck with table content."
+    },
+    {
+      "id": "pptx-many-pages",
+      "format": "pptx",
+      "source": "Unstructured example-docs",
+      "url": "https://raw.githubusercontent.com/Unstructured-IO/unstructured/main/example-docs/fake-power-point-many-pages.pptx",
+      "notes": "Longer PowerPoint deck."
+    },
+    {
+      "id": "ppt-legacy",
+      "format": "ppt",
+      "source": "Apache Tika test documents",
+      "url": "https://svn.apache.org/repos/asf/tika/branches/0.7/tika-parsers/src/test/resources/test-documents/testPPT.ppt",
+      "notes": "Legacy binary PowerPoint file."
+    },
+    {
+      "id": "xlsx-emoji",
+      "format": "xlsx",
+      "source": "Unstructured example-docs",
+      "url": "https://raw.githubusercontent.com/Unstructured-IO/unstructured/main/example-docs/emoji.xlsx",
+      "notes": "Spreadsheet with emoji/unicode cells."
+    },
+    {
+      "id": "xlsx-large-cells",
+      "format": "xlsx",
+      "source": "Unstructured example-docs",
+      "url": "https://raw.githubusercontent.com/Unstructured-IO/unstructured/main/example-docs/more-than-1k-cells.xlsx",
+      "notes": "Spreadsheet with more than 1,000 cells."
+    },
+    {
+      "id": "xls-legacy",
+      "format": "xls",
+      "source": "Apache Tika test documents",
+      "url": "https://svn.apache.org/repos/asf/tika/branches/0.7/tika-parsers/src/test/resources/test-documents/testEXCEL.xls",
+      "notes": "Legacy binary Excel workbook."
+    },
+    {
+      "id": "odt-openoffice",
+      "format": "odt",
+      "source": "Apache Tika test documents",
+      "url": "https://svn.apache.org/repos/asf/tika/branches/0.7/tika-parsers/src/test/resources/test-documents/testOpenOffice2.odt",
+      "notes": "OpenDocument text file."
+    },
+    {
+      "id": "rtf-tika",
+      "format": "rtf",
+      "source": "Apache Tika test documents",
+      "url": "https://svn.apache.org/repos/asf/tika/branches/0.7/tika-parsers/src/test/resources/test-documents/testRTF.rtf",
+      "notes": "Rich Text Format sample."
+    },
+    {
+      "id": "epub-tika",
+      "format": "epub",
+      "source": "Apache Tika test documents",
+      "url": "https://svn.apache.org/repos/asf/tika/branches/0.7/tika-parsers/src/test/resources/test-documents/testEPUB.epub",
+      "notes": "EPUB sample book."
+    },
+    {
+      "id": "csv-escaped-commas",
+      "format": "csv",
+      "source": "Unstructured example-docs",
+      "url": "https://raw.githubusercontent.com/Unstructured-IO/unstructured/main/example-docs/csv-with-escaped-commas.csv",
+      "notes": "CSV with quoted commas."
+    },
+    {
+      "id": "csv-long-lines",
+      "format": "csv",
+      "source": "Unstructured example-docs",
+      "url": "https://raw.githubusercontent.com/Unstructured-IO/unstructured/main/example-docs/csv-with-long-lines.csv",
+      "notes": "CSV with long fields."
+    },
+    {
+      "id": "office-signed-docx",
+      "format": "docx",
+      "source": "Apache POI xmldsign test data",
+      "url": "https://svn-master.apache.org/repos/asf/poi/tags/REL_5_3_0/test-data/xmldsign/hello-world-signed.docx",
+      "notes": "Signed OOXML document edge case."
+    }
+  ]
+}
