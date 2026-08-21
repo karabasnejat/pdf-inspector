@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "benchmark:anydoc:download": "node benchmarks/anydoc/scripts/download-corpus.mjs",
+    "benchmark:anydoc": "npm run benchmark:anydoc:download && node benchmarks/anydoc/scripts/run-benchmark.mjs"
   },
   "dependencies": {
     "@firecrawl/anydoc-wasm": "^0.2.3",

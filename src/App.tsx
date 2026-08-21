@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { marked } from 'marked';
 import { usePdfInspector } from './usePdfInspector';
 import { useAnydoc } from './useAnydoc';
+import { anydocBenchmark } from './data/anydocBenchmarkData';
 import type { PdfProcessResult } from '@firecrawl/pdf-inspector-wasm';
 import type { Format } from '@firecrawl/anydoc-wasm';
 
@@ -72,6 +73,22 @@ function getConvertErrorMessage(error: unknown) {
   }
 
   return error instanceof Error ? error.message : 'Dosya işlenirken bir hata oluştu.';
+}
+
+function formatMs(value: number | null) {
+  return value == null ? '-' : `${value.toFixed(2)} ms`;
+}
+
+function formatPercent(value: number) {
+  return `${(value * 100).toFixed(0)}%`;
+}
+
+function formatBenchmarkDate(value: string) {
+  return new Intl.DateTimeFormat('en', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(value));
 }
 
 export default function App() {
@@ -284,66 +301,59 @@ export default function App() {
 
       <div className="benchmark-section">
         <div className="benchmark-header">
-          <span className="benchmark-tag">200 PDFs · OpenDataLoader benchmark</span>
-          <span className="benchmark-meta">Apple M4 Pro · median of 3 runs</span>
+          <span className="benchmark-tag">
+            Anydoc mixed-document benchmark · {anydocBenchmark.totalFiles} files
+          </span>
+          <span className="benchmark-meta">
+            {anydocBenchmark.runsPerFile} runs per file · refreshed {formatBenchmarkDate(anydocBenchmark.generatedAt)}
+          </span>
+        </div>
+        <div className="benchmark-summary-grid">
+          <div className="benchmark-summary-card">
+            <span className="benchmark-summary-label">Success</span>
+            <span className="benchmark-summary-value">
+              {anydocBenchmark.successfulFiles}/{anydocBenchmark.totalFiles}
+            </span>
+          </div>
+          <div className="benchmark-summary-card">
+            <span className="benchmark-summary-label">Median conversion</span>
+            <span className="benchmark-summary-value">{formatMs(anydocBenchmark.medianMs)}</span>
+          </div>
+          <div className="benchmark-summary-card">
+            <span className="benchmark-summary-label">Markdown output</span>
+            <span className="benchmark-summary-value">{anydocBenchmark.totalMarkdownChars.toLocaleString()} chars</span>
+          </div>
         </div>
         <div className="benchmark-table-wrap">
           <table className="benchmark-table">
             <thead>
               <tr>
-                <th>Engine</th>
-                <th>Overall</th>
-                <th>Reading Order</th>
-                <th>Tables</th>
-                <th>Headings</th>
-                <th>Complete Run</th>
+                <th>Format</th>
+                <th>Files</th>
+                <th>Success</th>
+                <th>Median</th>
+                <th>Input</th>
+                <th>Markdown</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="benchmark-highlight">
-                <td><span className="benchmark-dot" />pdf-inspector</td>
-                <td>0.875</td>
-                <td>0.915</td>
-                <td>0.814</td>
-                <td>0.788</td>
-                <td>2.8s</td>
-              </tr>
-              <tr>
-                <td>LiteParse</td>
-                <td>0.870</td>
-                <td>0.908</td>
-                <td>0.693</td>
-                <td>0.811</td>
-                <td>13.9s</td>
-              </tr>
-              <tr>
-                <td>OpenDataLoader</td>
-                <td>0.843</td>
-                <td>0.912</td>
-                <td>0.489</td>
-                <td>0.760</td>
-                <td>9.8s</td>
-              </tr>
-              <tr>
-                <td>PyMuPDF4LLM</td>
-                <td>0.735</td>
-                <td>0.886</td>
-                <td>0.401</td>
-                <td>0.424</td>
-                <td>15.5s</td>
-              </tr>
-              <tr>
-                <td>MarkItDown</td>
-                <td>0.583</td>
-                <td>0.879</td>
-                <td>0.000</td>
-                <td>0.000</td>
-                <td>6.7s</td>
-              </tr>
+              {anydocBenchmark.byFormat.map((row) => (
+                <tr className={row.successRate === 1 ? 'benchmark-highlight' : ''} key={row.format}>
+                  <td><span className="benchmark-dot" />{row.format}</td>
+                  <td>{row.files}</td>
+                  <td>{row.success}/{row.files} · {formatPercent(row.successRate)}</td>
+                  <td>{formatMs(row.medianMs)}</td>
+                  <td>{row.totalBytes.toLocaleString()} B</td>
+                  <td>{row.totalMarkdownChars.toLocaleString()}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
-        <p className="benchmark-footer">Refreshed July 16, 2026. Scores use the benchmark's NID, TEDS, and MHS evaluators.</p>
+        <p className="benchmark-footer">
+          Corpus: Unstructured example-docs, Apache Tika test documents, and Apache POI signed Office fixtures.
+          Generated locally with the browser WASM package.
+        </p>
       </div>
 
       {loading && (
