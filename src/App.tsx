@@ -131,23 +131,27 @@ export default function App() {
       const buffer = await file.arrayBuffer();
       const data = new Uint8Array(buffer);
       const isPdf = file.name.toLowerCase().endsWith('.pdf');
-      const [format, pdf] = await Promise.all([
-        detectFormat(data, file.name),
-        isPdf ? processPdf(data) : Promise.resolve(undefined),
-      ]);
-      let markdown = '';
 
-      try {
-        markdown = await convertToMarkdown(data, file.name);
-      } catch (convertError) {
-        if (!pdf) throw convertError;
-        markdown = pdf.markdown ?? '';
+      if (isPdf) {
+        const pdf = await processPdf(data);
+        setResult({
+          markdown: pdf.markdown ?? '',
+          format: 'pdf',
+          pdf,
+          processingTimeMs: performance.now() - startedAt,
+        });
+        setSuccessMessage(`Extraction completed for ${file.name}. Your result is ready below.`);
+        return;
       }
+
+      const [markdown, format] = await Promise.all([
+        convertToMarkdown(data, file.name),
+        detectFormat(data, file.name),
+      ]);
 
       setResult({
         markdown,
         format,
-        pdf,
         processingTimeMs: performance.now() - startedAt,
       });
       setSuccessMessage(`Extraction completed for ${file.name}. Your result is ready below.`);
