@@ -329,6 +329,42 @@ body {
   z-index: 1;
 }
 
+.format-support {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 520px;
+  margin: 22px auto 0;
+  position: relative;
+  z-index: 1;
+}
+
+.format-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #dbdcdf;
+  border-radius: 6px;
+  background: #f8f9fc;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  line-height: 1.3;
+  letter-spacing: 0.045em;
+  color: #4f5166;
+}
+
+.format-chip-label {
+  color: #222222;
+}
+
+.format-chip-values {
+  color: #6b6b83;
+  word-break: break-word;
+}
+
 .upload-zone .wasm-loading {
   color: #0428cb;
   margin-top: 10px;
@@ -983,6 +1019,10 @@ body {
 
   .upload-zone h2 {
     font-size: 24px;
+  }
+
+  .format-support {
+    justify-content: flex-start;
   }
 
   .processing-animation {

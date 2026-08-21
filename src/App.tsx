@@ -1,14 +1,81 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { marked } from 'marked';
 import { usePdfInspector } from './usePdfInspector';
+import { useAnydoc } from './useAnydoc';
 import type { PdfProcessResult } from '@firecrawl/pdf-inspector-wasm';
+import type { Format } from '@firecrawl/anydoc-wasm';
 
 function toRawText(markdown: string) {
   return markdown.replace(/[#*_`\[\]()>|-]/g, '');
 }
 
+type DocumentResult = {
+  markdown: string;
+  format?: Format;
+  pdf?: PdfProcessResult;
+  processingTimeMs: number;
+};
+
+const supportedExtensions = [
+  '.pdf',
+  '.doc',
+  '.docx',
+  '.docm',
+  '.ppt',
+  '.pps',
+  '.pot',
+  '.pptx',
+  '.pptm',
+  '.ppsx',
+  '.ppsm',
+  '.xls',
+  '.xlsx',
+  '.xlsm',
+  '.xlsb',
+  '.odt',
+  '.ods',
+  '.odp',
+  '.rtf',
+  '.epub',
+  '.csv',
+];
+
+const formatGroups = [
+  { label: 'PDF', formats: ['.pdf'] },
+  { label: 'Word', formats: ['.doc', '.docx', '.docm'] },
+  { label: 'PowerPoint', formats: ['.ppt', '.pptx', '.pps', '.ppsx', '.pot'] },
+  { label: 'Excel', formats: ['.xls', '.xlsx', '.xlsm', '.xlsb'] },
+  { label: 'OpenDocument', formats: ['.odt', '.ods', '.odp'] },
+  { label: 'Other', formats: ['.rtf', '.epub', '.csv'] },
+];
+
+function isSupportedFile(fileName: string) {
+  const lowerName = fileName.toLowerCase();
+  return supportedExtensions.some((extension) => lowerName.endsWith(extension));
+}
+
+function getFileKindLabel(format?: Format, fileName?: string | null) {
+  if (format) return format.toUpperCase();
+  if (!fileName) return 'Document';
+  const extension = fileName.split('.').pop();
+  return extension ? extension.toUpperCase() : 'Document';
+}
+
+function getConvertErrorMessage(error: unknown) {
+  if (error instanceof Error && 'code' in error) {
+    const code = (error as Error & { code?: string }).code;
+    if (code === 'encrypted') return 'Bu dosya şifreli veya parola korumalı.';
+    if (code === 'unsupported') return 'Bu dosyadan anlamlı Markdown çıkarılamadı. Görsel tabanlı PDF için OCR gerekebilir.';
+    if (code === 'malformed') return 'Dosya yapısı okunabilir içerik çıkarmak için uygun değil.';
+    if (code === 'resourceLimit') return 'Dosya güvenlik limitlerini aştığı için dönüştürülemedi.';
+    if (code === 'missingPart') return 'Dosyada dönüşüm için gerekli bir bölüm eksik.';
+  }
+
+  return error instanceof Error ? error.message : 'Dosya işlenirken bir hata oluştu.';
+}
+
 export default function App() {
-  const [result, setResult] = useState<PdfProcessResult | null>(null);
+  const [result, setResult] = useState<DocumentResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -19,10 +86,12 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { ready, processPdf } = usePdfInspector();
+  const { ready: anydocReady, convertToMarkdown, detectFormat } = useAnydoc();
+  const isReady = ready && anydocReady;
 
   const handleFile = useCallback(async (file: File) => {
-    if (!file.name.toLowerCase().endsWith('.pdf')) {
-      setError('Lütfen bir PDF dosyası seçin.');
+    if (!isSupportedFile(file.name)) {
+      setError('Lütfen desteklenen bir doküman seçin: PDF, Word, PowerPoint, Excel, OpenDocument, RTF, EPUB veya CSV.');
       return;
     }
 
@@ -33,17 +102,36 @@ export default function App() {
     setFileName(file.name);
 
     try {
+      const startedAt = performance.now();
       const buffer = await file.arrayBuffer();
       const data = new Uint8Array(buffer);
-      const res = await processPdf(data);
-      setResult(res);
+      const isPdf = file.name.toLowerCase().endsWith('.pdf');
+      const [format, pdf] = await Promise.all([
+        detectFormat(data, file.name),
+        isPdf ? processPdf(data) : Promise.resolve(undefined),
+      ]);
+      let markdown = '';
+
+      try {
+        markdown = await convertToMarkdown(data, file.name);
+      } catch (convertError) {
+        if (!pdf) throw convertError;
+        markdown = pdf.markdown ?? '';
+      }
+
+      setResult({
+        markdown,
+        format,
+        pdf,
+        processingTimeMs: performance.now() - startedAt,
+      });
       setSuccessMessage(`Extraction completed for ${file.name}. Your result is ready below.`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'PDF işlenirken bir hata oluştu.');
+      setError(getConvertErrorMessage(e));
     } finally {
       setLoading(false);
     }
-  }, [processPdf]);
+  }, [convertToMarkdown, detectFormat, processPdf]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -91,7 +179,7 @@ export default function App() {
 
     const content = activeTab === 'markdown' ? result.markdown : toRawText(result.markdown);
     const extension = activeTab === 'markdown' ? 'md' : 'txt';
-    const baseName = (fileName ?? 'pdf-output').replace(/\.pdf$/i, '');
+    const baseName = (fileName ?? 'document-output').replace(/\.[^.]+$/i, '');
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -113,13 +201,12 @@ export default function App() {
       <header className="header">
         <div className="header-badges">
           <span className="badge-open-source"><span className="badge-dot" />FIRECRAWL OPEN SOURCE · MIT</span>
-          <span className="badge-rust">Rs RUST CORE</span>
+          <span className="badge-rust">ANYDOC + PDF INSPECTOR</span>
         </div>
-        <h1>PDF Inspector</h1>
+        <h1>Document Inspector</h1>
         <p className="header-desc">
-          A Rust-powered, open-source parser that classifies PDFs and turns native text into clean,
-          position-aware Markdown. Use it from Node.js or the bundled CLI, with packages also available
-          from PyPI and crates.io.
+          Convert mixed document files into clean GitHub-Flavored Markdown with Anydoc, while
+          keeping pdf-inspector's PDF classification, OCR hints, and layout details for PDF uploads.
         </p>
         <div className="header-actions">
           <a href="#upload" className="btn-primary" onClick={(e) => { e.preventDefault(); fileInputRef.current?.click(); }}>
@@ -143,13 +230,21 @@ export default function App() {
             <line x1="12" y1="3" x2="12" y2="15" />
           </svg>
         </div>
-        <h2>Upload a PDF</h2>
+        <h2>Upload a document</h2>
         <p>Drag and drop or click to select</p>
-        {!ready && <p className="wasm-loading">Loading WASM module...</p>}
+        <div className="format-support" aria-label="Supported formats">
+          {formatGroups.map((group) => (
+            <span className="format-chip" key={group.label}>
+              <span className="format-chip-label">{group.label}</span>
+              <span className="format-chip-values">{group.formats.join(' ')}</span>
+            </span>
+          ))}
+        </div>
+        {!isReady && <p className="wasm-loading">Loading WASM modules...</p>}
         <input
           ref={fileInputRef}
           type="file"
-          accept=".pdf"
+          accept={supportedExtensions.join(',')}
           onChange={handleInputChange}
         />
         </div>
@@ -164,13 +259,13 @@ export default function App() {
           <div className="terminal-body">
             <div className="terminal-line">
               <span className="terminal-prompt">$</span>
-              <span className="terminal-cmd">npm i -g @firecrawl/pdf-inspector</span>
+              <span className="terminal-cmd">npm i @firecrawl/anydoc-wasm</span>
             </div>
-            <div className="terminal-output">  installed the native package + CLI</div>
+            <div className="terminal-output">  installed the browser converter</div>
             <br />
             <div className="terminal-line">
               <span className="terminal-prompt">$</span>
-              <span className="terminal-cmd">pdf-inspector annual-report.pdf</span>
+              <span className="terminal-cmd">toMarkdownBytes(report.docx)</span>
             </div>
             <div className="terminal-output terminal-md"># Annual Report 2025</div>
             <br />
@@ -179,8 +274,8 @@ export default function App() {
             <div className="terminal-output terminal-md">|---|---:|---:|</div>
             <br />
             <div className="terminal-meta">
-              <div className="terminal-meta-row"><span className="terminal-meta-label">document type</span><span className="terminal-meta-value highlight">TextBased</span></div>
-              <div className="terminal-meta-row"><span className="terminal-meta-label">output</span><span className="terminal-meta-value">structured Markdown</span></div>
+              <div className="terminal-meta-row"><span className="terminal-meta-label">formats</span><span className="terminal-meta-value highlight">PDF / DOCX / XLSX / PPTX</span></div>
+              <div className="terminal-meta-row"><span className="terminal-meta-label">output</span><span className="terminal-meta-value">GitHub-Flavored Markdown</span></div>
               <div className="terminal-meta-row"><span className="terminal-meta-label">engine</span><span className="terminal-meta-value">Rust</span></div>
             </div>
           </div>
@@ -276,22 +371,17 @@ export default function App() {
       {result && (
         <div className="results">
           <div className="card">
-            <h3>Sınıflandırma</h3>
+            <h3>Doküman</h3>
             <div className="info-grid">
               <div className="info-item">
-                <span className="info-label">PDF Türü</span>
-                <span className={`badge ${getBadgeClass(result.pdfType)}`}>
-                  {getTypeLabel(result.pdfType)}
+                <span className="info-label">Format</span>
+                <span className="badge text-based">
+                  {getFileKindLabel(result.format, fileName)}
                 </span>
               </div>
               <div className="info-item">
-                <span className="info-label">Güven Skoru</span>
-                <span className="info-value">{(result.confidence * 100).toFixed(1)}%</span>
-              </div>
-              <div>
-                <div className="confidence-bar">
-                  <div className="confidence-fill" style={{ width: `${result.confidence * 100}%` }} />
-                </div>
+                <span className="info-label">Dönüştürücü</span>
+                <span className="info-value">Anydoc WASM</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Dosya</span>
@@ -301,36 +391,59 @@ export default function App() {
           </div>
 
           <div className="card">
-            <h3>Detaylar</h3>
+            <h3>{result.pdf ? 'PDF Detayları' : 'Detaylar'}</h3>
             <div className="info-grid">
-              <div className="info-item">
-                <span className="info-label">Sayfa Sayısı</span>
-                <span className="info-value">{result.pageCount}</span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">OCR Gereken Sayfalar</span>
-                <span className="info-value">
-                  {result.pagesNeedingOcr.length === 0
-                    ? 'Yok'
-                    : result.pagesNeedingOcr.join(', ')}
-                </span>
-              </div>
+              {result.pdf && (
+                <>
+                  <div className="info-item">
+                    <span className="info-label">PDF Türü</span>
+                    <span className={`badge ${getBadgeClass(result.pdf.pdfType)}`}>
+                      {getTypeLabel(result.pdf.pdfType)}
+                    </span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Güven Skoru</span>
+                    <span className="info-value">{(result.pdf.confidence * 100).toFixed(1)}%</span>
+                  </div>
+                  <div>
+                    <div className="confidence-bar">
+                      <div className="confidence-fill" style={{ width: `${result.pdf.confidence * 100}%` }} />
+                    </div>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Sayfa Sayısı</span>
+                    <span className="info-value">{result.pdf.pageCount}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">OCR Gereken Sayfalar</span>
+                    <span className="info-value">
+                      {result.pdf.pagesNeedingOcr.length === 0
+                        ? 'Yok'
+                        : result.pdf.pagesNeedingOcr.join(', ')}
+                    </span>
+                  </div>
+                </>
+              )}
               <div className="info-item">
                 <span className="info-label">İşlem Süresi</span>
                 <span className="info-value">{result.processingTimeMs.toFixed(0)} ms</span>
               </div>
-              <div className="info-item">
-                <span className="info-label">Tablo İçeren Sayfalar</span>
-                <span className="info-value">
-                  {result.layout.pagesWithTables.length === 0
-                    ? 'Yok'
-                    : result.layout.pagesWithTables.join(', ')}
-                </span>
-              </div>
-              <div className="info-item">
-                <span className="info-label">Encoding Sorunları</span>
-                <span className="info-value">{result.hasEncodingIssues ? 'Var' : 'Yok'}</span>
-              </div>
+              {result.pdf && (
+                <>
+                  <div className="info-item">
+                    <span className="info-label">Tablo İçeren Sayfalar</span>
+                    <span className="info-value">
+                      {result.pdf.layout.pagesWithTables.length === 0
+                        ? 'Yok'
+                        : result.pdf.layout.pagesWithTables.join(', ')}
+                    </span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Encoding Sorunları</span>
+                    <span className="info-value">{result.pdf.hasEncodingIssues ? 'Var' : 'Yok'}</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
